@@ -236,7 +236,7 @@ sub run_by_key_p {
     say "move to range: ", join( " - ", @{ $BORDER_RANGES[ $STATE{current_index} ] } ), " = $SCORES[ $STATE{current_index} ]";
 }
 
-sub run_by_key_w {
+sub run_by_key_w { # i can not EOF file.  Re-editing values can be cause of overflow.
     seek $OUT, $OUT_POS, 0;
     say { $OUT } join "\t", $STATE{start}, @SCORES, ( $STATE{my_score} || 0 ), ( $STATE{my_ranking} || 0 );
 }
