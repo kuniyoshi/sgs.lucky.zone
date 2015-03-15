@@ -34,7 +34,7 @@ Readonly my %IDENTIFIER => (
     $ESC    => "escape",
 );
 
-Readonly my @BORDERS        => ( 800, 1_500, 3_000, 4_000, 5_000, 7_500, 10_000, 15_000, 20_000, 20_200, 30_000, 30_200, 50_000, 50_101, 100_000, 180_000 );
+Readonly my @BORDERS        => ( 800, 1_500, 3_000, 4_000, 5_000, 7_500, 10_000, 15_000, 20_000, 20_200, 30_000, 30_200, 50_000, 50_100, 100_000, 180_000 );
 Readonly my @BORDER_RANGES  => do {
     my $g = sub { state $p = 0; return [ $p + 1, $p = shift ] };
     map { $g->( $_ ) } @BORDERS;
