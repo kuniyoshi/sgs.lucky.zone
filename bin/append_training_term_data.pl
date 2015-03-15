@@ -72,12 +72,6 @@ my %STATE = (
 my %perform = (
     normal => sub {
         my $key = read_key( );
-
-        if ( $key eq q{q} ) {
-            $STATE{can_continue_to_read} = 0;
-            return;
-        }
-
         my $subname = "run_by_key_$key";
 
         if ( main->can( $subname ) ) {
@@ -239,6 +233,7 @@ sub run_by_key_p {
 sub run_by_key_w { # i can not EOF file.  Re-editing values can be cause of overflow.
     seek $OUT, $OUT_POS, 0;
     say { $OUT } join "\t", $STATE{start}, @SCORES, ( $STATE{my_score} || 0 ), ( $STATE{my_ranking} || 0 );
+    $STATE{did_save}++;
 }
 
 sub run_by_key_l {
@@ -258,6 +253,33 @@ sub run_by_key_e {
 }
 
 sub run_by_key_colon { &run_by_key_e }
+
+sub run_by_key_q {
+    if ( $STATE{did_save} ) {
+        $STATE{can_continue_to_read} = 0;
+    }
+    else {
+        ReadMode 0;
+        my $is_key_y_n;
+        my $yes_no;
+        print "quit without save? [y/n]";
+
+        while ( !$is_key_y_n ) {
+            chomp( my $input = <STDIN> );
+            if ( $input !~ m{\A [yn] \z}msx ) {
+                say "invalid input [$input]";
+            }
+            else {
+                $yes_no = $input;
+                $is_key_y_n++;
+            }
+        }
+
+        if ( $yes_no eq "y" ) {
+            $STATE{can_continue_to_read} = 0;
+        }
+    }
+}
 
 sub run_by_key_h {
     print _help( );
