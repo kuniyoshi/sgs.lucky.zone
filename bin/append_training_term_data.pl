@@ -174,6 +174,25 @@ sub read_key {
     return $IDENTIFIER{ $key } || $key;
 }
 
+sub run_by_key_c {
+    my @errors;
+
+    for my $i ( 1 .. $#SCORES ) {
+        my $score           = $SCORES[ $i ];
+        my $previous_score  = $SCORES[ $i - 1 ];
+        my( $upper_ranking, $lower_ranking ) = @{ $BORDER_RANGES[ $i ] };
+
+        if ( !$score ) {
+            push @errors, "No data at the range between [$upper_ranking] and [$lower_ranking].";
+        }
+        elsif ( $score >= $previous_score ) {
+            push @errors, "[$score] is not lower than [$previous_score] at the range between [$upper_ranking] and [$lower_ranking]";
+        }
+    }
+
+    print map { $_, "\n" } @errors;
+}
+
 sub run_by_key_r {
     ReadMode 0;
     print "what is ranking: ";
@@ -298,6 +317,7 @@ sub _help {
     d       date time of the record
     s       my score
     r       my runking
+    c       check the data
 END_HELP
 }
 
