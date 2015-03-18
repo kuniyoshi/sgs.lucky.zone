@@ -1,3 +1,12 @@
 rank	game	rival	score
-F	win	F	33
-
+F	win	FALSE	33
+F	win	TRUE	37
+F	lose	FALSE	17
+F	lose	TRUE	18
+E	win	FALSE	34
+E	win	TRUE	39
+E	lose	FALSE	19
+E	lose	TRUE	19
+D	lose	FALSE	20
+D	lose	TRUE	20
+C	lose	F	18
