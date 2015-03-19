@@ -40,6 +40,8 @@ usage.predict <- function(from, to=NULL, target_date_time) {
     tt.subset   <<- subset.tt(tt, tt.from=tt.from, tt.to=tt.to)
 
     tt.lu       <<- split.tt(tt.subset)
+    print("tt lower, and upper")
+    print(tt.lu)
     tt.lower    <<- tt.lu$lower
     tt.upper    <<- tt.lu$upper
 
@@ -60,6 +62,42 @@ usage.predict <- function(from, to=NULL, target_date_time) {
                                    interval="prediction")
     print("predicted upper:")
     print(tt.upper.predicted)
+
+    print(paste(c("target", mean(tt.lower.predicted[1], tt.upper.predicted[1]))))
+}
+
+load_score <- function() {
+    score <- read.delim("score")
+    return (score)
+}
+
+get_score_data_free <- function(score) {
+    score <- unique(c(0, score))
+    data_free <- expand.grid(score, score, score, score, score)
+    data_free <- transform(as.data.frame(data_free),
+                           sum=Var1 + Var2 + Var3 + Var4 + Var5,
+                           games=sum(c(Var1, Var2, Var3, Var4, Var5) == 0))
+    return (data_free)
+}
+
+craft_score <- function(target, score) {
+    score <- unique(c(0, score))
+    data_free <- get_score_data_free(score)
+
+    if (!any(data_free$sum == target)) {
+        return (NULL)
+    }
+
+    craft <- subset(data_free,
+                    sum == target,
+                    select=c("Var1", "Var2", "Var3", "Var4", "Var5"))
+
+
+    return (craft)
+}
+
+usage.game <- function(now, target, in_rival_term=FALSE) {
+    score <<- load_score()
 }
 
 #extract_ranking_score <- function(tt) {
