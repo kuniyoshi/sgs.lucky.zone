@@ -2,68 +2,72 @@ library(lattice)
 library(ggplot2)
 library(xts)
 
-read_data <- function(...) {
-    tt <- read.delim("2015-03.training_term")
-    tt <- transform(tt,
-                    date_time=as.POSIXct(date_time, origin="1970-01-01", tz="Asia/Tokyo", format="%FT%T"))
-    return (tt)
+read_ranking <- function(filename, ...) {
+    ranking <- read.delim(filename, ...)
+    ranking <- transform(ranking,
+                         date_time = as.POSIXct(date_time,
+                                                origin  = "1970-01-01",
+                                                tz      = "Asia/Tokyo",
+                                                format  = "%FT%T"))
+    return (ranking)
 }
 
-subset.tt <- function(tt, tt.from=tt.posixct, tt.to=max(tt$date_time)) {
-    tt <- subset(tt,
-                 date_time >= tt.from & date_time <= tt.to,
-                 select=c("date_time", "r30000", "r30200"))
-    return (tt)
+get_datetime.str <- function(datetime.str) {
+    return (as.POSIXct(datetime.str,
+                       origin   = "1970-01-01",
+                       tz       = "Asia/Tokyo",
+                       format   = "%FT%T"))
 }
 
-split.tt <- function(tt) {
-    tt.lower <- subset(transform(tt, score=r30200),
-                       select=c("date_time", "score"))
-    tt.upper <- subset(transform(tt, score=r30000),
-                       select=c("date_time", "score"))
-    return (list(lower=tt.lower, upper=tt.upper))
+lucky_zone <- data.frame(name   = c("high", "moderate", "low"),
+                         higher = c("r20000", "r30000", "r50000"),
+                         lower  = c("r20200", "r30200", "r50100"))
+
+get_col_name <- function(zone_name, high_low) {
+    name <- subset(lucky_zone, name == zone_name, select = high_low)[, 1]
+    return (as.character(name))
 }
 
-model.tt <- function(tt) {
-    return (with(tt, lm(score ~ date_time)))
+subset.ranking <- function(ranking, from, to, target_zone) {
+    ranking <- subset(ranking,
+                      date_time >= from & date_time <= to)
+    higher  <- get_col_name(target_zone, "higher")
+    lower   <- get_col_name(target_zone, "lower")
+    ranking <- transform(ranking, higher = ranking[[higher]], lower = ranking[[lower]])
+    ranking <- subset(ranking, select = c("date_time", "higher", "lower"))
+    return (ranking)
 }
 
-usage.predict <- function(from, to=NULL, target_date_time) {
-    tt          <<- read_data()
+model.ranking <- function(ranking) {
+    return (with(ranking, lm((higher + lower) / 2 ~ date_time)))
+}
 
-    if (is.null(to)) {
-        to <- max(tt$date_time)
-    }
+usage.predict <- function(from, to, filename = "data/2015-03.training_term", target_zone = "moderate", target_datetime) {
+    ranking <<- read_ranking(filename)
 
-    tt.from     <<- as.POSIXct(from, origin="1970-01-01", tz="Asia/Tokyo", format="%FT%T")
-    tt.to       <<- as.POSIXct(to,   origin="1970-01-01", tz="Asia/Tokyo", format="%FT%T")
-    tt.subset   <<- subset.tt(tt, tt.from=tt.from, tt.to=tt.to)
+    ranking.from    <- get_datetime.str(from)
+    ranking.to      <- get_datetime.str(to)
+    target_datetime <- get_datetime.str(target_datetime)
+    ranking         <- subset.ranking(ranking, ranking.from, ranking.to, target_zone)
 
-    tt.lu       <<- split.tt(tt.subset)
-    print("tt lower, and upper")
-    print(tt.lu)
-    tt.lower    <<- tt.lu$lower
-    tt.upper    <<- tt.lu$upper
+    cat("[ranking]\n")
+    print(ranking)
 
-    tt.lower.lm <<- model.tt(tt.lower)
-    print("summary of lower:")
-    print(summary(tt.lower.lm))
-    tt.upper.lm <<- model.tt(tt.upper)
-    print("summary of upper:")
-    print(summary(tt.upper.lm))
+    cat("\n")
 
-    tt.lower.predicted <<- predict(tt.lower.lm,
-                                   data.frame(date_time=target_date_time),
-                                   interval="prediction")
-    print("predicted loewr:")
-    print(tt.lower.predicted)
-    tt.upper.predicted <<- predict(tt.upper.lm,
-                                   data.frame(date_time=target_date_time),
-                                   interval="prediction")
-    print("predicted upper:")
-    print(tt.upper.predicted)
+    ranking.model   <- model.ranking(ranking)
 
-    print(paste(c("target", mean(tt.lower.predicted[1], tt.upper.predicted[1]))))
+    cat("[model]\n")
+    print(summary(ranking.model))
+
+    cat("\n")
+
+    predicted_score <- predict(ranking.model,
+                               data.frame(date_time = target_datetime),
+                               interval = "prediction")
+
+    cat("[predicted]\n")
+    print(predicted_score)
 }
 
 load_score <- function() {
