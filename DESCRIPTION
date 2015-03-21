@@ -1,5 +1,5 @@
-Package: sgs.training.term
-Title: Predict scores in the lucky zone
+Package: sgs.lucky.zone
+Title: Predict score in the lucky zone
 Version: 0.0.0.9000
 Authors@R: person("Kouji", "KUNIYOSHI", , "kuniyoshi.kouji@gmail.com", role = c("aut", "cre"))
 Description: Predict score which may be in the lucky zone.
