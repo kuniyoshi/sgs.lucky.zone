@@ -188,7 +188,7 @@ DEPENDENCY
 EXTERNAL LINKS
 --------------
 
-- (SCHOOL GIRL STRICKERS)[http://schoolgirlstrikers.jp/] (c) 2014,2015 SQUARE ENIX CO., LTD. All Rights Reserved.
+- [SCHOOL GIRL STRICKERS](http://schoolgirlstrikers.jp/) (c) 2014,2015 SQUARE ENIX CO., LTD. All Rights Reserved.
 
 LICENSE
 -------
