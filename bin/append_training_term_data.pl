@@ -43,6 +43,8 @@ Readonly my @BORDER_RANGES  => do {
 Readonly my $INSERT_MODE    => "insert";
 Readonly my $NORMAL_MODE    => "normal";
 
+Readonly my @HEADINGS   => ( "date_time", ( map { "r$_" } @BORDERS ), "my_score", "my_ranking" );
+
 our $h;
 my $OUTPUT = do {
     my $output = shift;
@@ -56,7 +58,7 @@ die usage( )
 
 my @SCORES = ( 0 ) x @BORDERS;
 
-Path::Class::file( $OUTPUT )->touch
+Path::Class::file( $OUTPUT )->spew( join( "\t", @HEADINGS ) . "\n" )
     if !-e $OUTPUT;
 open my $OUT, "+<", $OUTPUT;
 seek $OUT, 0, SEEK_END;
