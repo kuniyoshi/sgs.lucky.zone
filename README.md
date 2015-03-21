@@ -35,13 +35,14 @@ Square bracket[] shows the typed from keyborad.
 
 ### PREDICT
 
-TODO:
-
 ```
   $ R
   > library(devtools)
   > devtools::load_all()
-  > ...
+  > usage.predict("2015-03-19T22:00:00",
+                  "2015-03-19T23:55:00",
+                  target_datetime = "2015-03-20T00:00:00")
+  > usage.game(7473, 7565)
 ```
 
 DESCRIPTION
@@ -137,12 +138,13 @@ can be predicted by linear regression model.
 
 To predict the fixed Lucky Zone, run below.
 
-TODO:
-
 ``` R
   $ R
   > library(devtools)
   > devtools::load_all()
+  > usage.predict("2015-03-19T22:00:00",
+                  "2015-03-19T23:55:00",
+                  target_datetime = "2015-03-20T00:00:00")
 ```
 
 ### LIST COMBINATION SCORES TO BE LUCKY SCORE
@@ -150,12 +152,11 @@ TODO:
 After predict the score, run below to how can
 achive the score in the Training Term.
 
-TODO:
-
 ``` R
   $ R
   > library(devtools)
   > devtools::load_all()
+  > usage.game(7473, 7565)
 ```
 
 ### STATISTICS
