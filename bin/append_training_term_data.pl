@@ -7,10 +7,10 @@ use open qw( :utf8 :std );
 use autodie qw( open close seek );
 use Readonly;
 use Data::Dumper;
-use Term::ReadKey;
-use Time::Piece;
 use Fcntl qw( :seek );
 use List::Util qw( max );
+use Time::Piece;
+use Term::ReadKey;
 use Path::Class;
 
 $Data::Dumper::Terse    = 1;
@@ -161,7 +161,7 @@ sub read_score {
         }
     }
 
-    return $score; # never evaluted.
+    return $score; # will be never evaluted.
 }
 
 sub read_key {
@@ -195,28 +195,28 @@ sub run_by_key_c {
 
 sub run_by_key_r {
     ReadMode 0;
-    print "what is ranking: ";
+    print "what is your ranking: ";
     chomp( my $ranking = <STDIN> );
 
     if ( $ranking =~ m{\A \d+ \z}msx ) {
         $STATE{my_ranking} = $ranking;
     }
     else {
-        say "Invalid ranking: [$ranking], retry from entering ranking mode.";
+        say "Invalid ranking: [$ranking].  Type `r` to retry.";
         return;
     }
 }
 
 sub run_by_key_s {
     ReadMode 0;
-    print "what is score: ";
+    print "what is your score: ";
     chomp( my $score = <STDIN> );
 
     if ( $score =~ m{\A \d+ \z}msx ) {
         $STATE{my_score} = $score;
     }
     else {
-        say "Invalid score: [$score], retry from entering score mode.";
+        say "Invalid score: [$score].  Type `s` to retry.";
         return;
     }
 }
@@ -230,7 +230,8 @@ sub run_by_key_d {
         $STATE{start} = $datetime;
     }
     else {
-        say "Invalid date: [$datetime]";
+        say "Invalid date: [$datetime].  The valid format is only `YYYY-mm-dd HH:MM:SS`.\n",
+            "Type `d` to retry.";
         return;
     }
 }
@@ -286,7 +287,7 @@ sub run_by_key_q {
         while ( !$is_key_y_n ) {
             chomp( my $input = <STDIN> );
             if ( $input !~ m{\A [yn] \z}msx ) {
-                say "invalid input [$input]";
+                say "invalid input [$input].  Type `y`, or `n`.";
             }
             else {
                 $yes_no = $input;
@@ -298,10 +299,6 @@ sub run_by_key_q {
             $STATE{can_continue_to_read} = 0;
         }
     }
-}
-
-sub run_by_key_h {
-    print _help( );
 }
 
 sub _help {
@@ -319,6 +316,10 @@ sub _help {
     r       my runking
     c       check the data
 END_HELP
+}
+
+sub run_by_key_h {
+    print _help( );
 }
 
 sub usage {
