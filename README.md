@@ -6,6 +6,17 @@ MISSION STATEMENT
 
 Predict the score, and ranking in the Lucky Zone.
 
+VERSION
+-------
+
+0.01
+
+CHANGES
+-------
+
+- 0.01 Sat Mar 21 15:27:33 JST 2015
+  - first version
+
 SYNOPSIS
 --------
 
