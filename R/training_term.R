@@ -42,7 +42,11 @@ model.ranking <- function(ranking) {
     return (with(ranking, lm((higher + lower) / 2 ~ date_time)))
 }
 
-usage.predict <- function(from, to, filename = "data/2015-03.training_term", target_zone = "moderate", target_datetime) {
+usage.predict <- function(from,
+                          to,
+                          filename      = "data/2015-03.training_term",
+                          target_zone   = "moderate",
+                          target_datetime) {
     ranking <<- read_ranking(filename)
 
     ranking.from    <- get_datetime.str(from)
@@ -70,36 +74,51 @@ usage.predict <- function(from, to, filename = "data/2015-03.training_term", tar
     print(predicted_score)
 }
 
-load_score <- function() {
-    score <- read.delim("score")
+load_score <- function(filename, ...) {
+    score <- read.delim(filename, ...)
     return (score)
 }
 
 get_score_data_free <- function(score) {
     score <- unique(c(0, score))
-    data_free <- expand.grid(score, score, score, score, score)
+    data_free <- expand.grid(score, score, score, score, score) # TODO: need more count flexible way.
     data_free <- transform(as.data.frame(data_free),
-                           sum=Var1 + Var2 + Var3 + Var4 + Var5,
-                           games=sum(c(Var1, Var2, Var3, Var4, Var5) == 0))
+                           sum      = Var1 + Var2 + Var3 + Var4 + Var5,
+                           games    = sum(c(Var1, Var2, Var3, Var4, Var5) == 0))
     return (data_free)
 }
 
-craft_score <- function(target, score) {
-    score <- unique(c(0, score))
-    data_free <- get_score_data_free(score)
+craft_score <- function(score, available_score) {
+    available_score <- unique(c(0, available_score))
+    data_free       <- get_score_data_free(available_score)
 
-    if (!any(data_free$sum == target)) {
+    if (!any(data_free$sum == score)) {
         return (NULL)
     }
 
-    craft <- subset(data_free,
-                    sum == target,
-                    select=c("Var1", "Var2", "Var3", "Var4", "Var5"))
+    crafted <- subset(data_free,
+                      sum == score,
+                      select = c("Var1", "Var2", "Var3", "Var4", "Var5"))
 
+    crafted <- apply(unique(apply(apply(crafted, 1, sort), 1, paste)), 2, as.numeric)
 
-    return (craft)
+    return (crafted)
 }
 
-usage.game <- function(now, target, in_rival_term=FALSE) {
-    score <<- load_score()
+get_score_description <- function(score, score_board) {
+    score_board <- subset(score_board, score == score)
 }
+
+usage.game <- function(current_score,
+                       target_score,
+                       is_rival_time    = FALSE,
+                       score_source     = "data/score") {
+    score <<- load_score(score_source)
+    score <- subset(score, rival == is_rival_time)
+
+    crafted_score <- craft_score(target_score - current_score,
+                                 score$score)
+
+    return (crafted_score)
+}
+
